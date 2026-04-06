@@ -1,7 +1,5 @@
 /**
  * Shape Builder — Match shapes to complete Spidey's web!
- * Voice: "Spidey needs the TRIANGLE!"
- * 3 shapes appear, tap the matching one.
  */
 const ShapeBuilder = (() => {
     const ALL_SHAPES = [
@@ -13,119 +11,80 @@ const ShapeBuilder = (() => {
         { name: 'diamond', svg: '<polygon points="50,5 90,50 50,95 10,50"/>', color: '#9C27B0' }
     ];
 
-    let container = null;
-    let onComplete = null;
-    let currentRound = 0;
-    let totalRounds = 5;
-    let targetShape = null;
+    let container = null, onComplete = null;
+    let currentRound = 0, totalRounds = 5, targetShape = null;
+    let roundCorrect = 0, roundTotal = 0;
 
     function start(containerEl, callback) {
         container = containerEl;
         onComplete = callback;
         currentRound = 0;
+        roundCorrect = 0;
+        roundTotal = 0;
         _nextQuestion();
     }
 
     function _nextQuestion() {
-        if (currentRound >= totalRounds) {
-            _completeActivity();
-            return;
-        }
-
+        if (currentRound >= totalRounds) { _completeActivity(); return; }
         const stats = Progress.getStats('shape-builder');
         const available = ALL_SHAPES.filter(s => stats.shapesLearned.includes(s.name));
-
-        // Pick target
         targetShape = available[Math.floor(Math.random() * available.length)];
-
-        // Pick distractors
-        const distractors = available.filter(s => s.name !== targetShape.name);
-        const shuffledDistractors = distractors.sort(() => Math.random() - 0.5);
-        const choices = [targetShape, ...shuffledDistractors.slice(0, 2)].sort(() => Math.random() - 0.5);
+        const distractors = available.filter(s => s.name !== targetShape.name).sort(() => Math.random() - 0.5);
+        const choices = [targetShape, ...distractors.slice(0, 2)].sort(() => Math.random() - 0.5);
 
         container.innerHTML = `
             <div class="activity-prompt">
                 <div class="shape-web-frame">
-                    <svg viewBox="0 0 100 100" class="shape-outline">
-                        ${targetShape.svg}
-                    </svg>
+                    <svg viewBox="0 0 100 100" class="shape-outline">${targetShape.svg}</svg>
                 </div>
                 <span class="round-counter">${currentRound + 1} / ${totalRounds}</span>
             </div>
             <div class="shape-choices">
                 ${choices.map(s => `
                     <button class="shape-choice-btn" data-shape="${s.name}">
-                        <svg viewBox="0 0 100 100" class="shape-filled" style="fill:${s.color}">
-                            ${s.svg}
-                        </svg>
+                        <svg viewBox="0 0 100 100" class="shape-filled" style="fill:${s.color}">${s.svg}</svg>
                     </button>
                 `).join('')}
             </div>
         `;
-
-        // Bind handlers
-        container.querySelectorAll('.shape-choice-btn').forEach(btn => {
-            btn.addEventListener('click', () => _onChoice(btn));
-        });
-
-        // Voice prompt
-        setTimeout(() => {
-            Voice.speak(`Spidey needs the ${targetShape.name}!`);
-        }, 300);
+        container.querySelectorAll('.shape-choice-btn').forEach(btn => btn.addEventListener('click', () => _onChoice(btn)));
+        setTimeout(() => Voice.speak(`Spidey needs the ${targetShape.name}!`), 300);
     }
 
     function _onChoice(btn) {
         const chosen = btn.dataset.shape;
-
+        roundTotal++;
         if (chosen === targetShape.name) {
-            // Correct!
+            roundCorrect++;
             Audio.playCorrect();
             Progress.recordAnswer('shape-builder', true);
             Character.happy();
             btn.classList.add('choice-correct');
-
             const rect = btn.getBoundingClientRect();
             Celebration.sparkle(rect.left + rect.width / 2, rect.top + rect.height / 2);
-
             if (Progress.shouldAwardSticker()) _awardSticker();
-
             currentRound++;
             setTimeout(_nextQuestion, 1200);
         } else {
-            // Wrong
             Audio.playWrong();
             Progress.recordAnswer('shape-builder', false);
             Character.encourage();
             btn.classList.add('choice-wrong');
-
-            // Highlight correct answer
             const correctBtn = container.querySelector(`[data-shape="${targetShape.name}"]`);
             if (correctBtn) correctBtn.classList.add('choice-hint');
-
             Voice.speak(`That's the ${chosen}. Look for the ${targetShape.name}!`);
-
-            setTimeout(() => {
-                btn.classList.remove('choice-wrong');
-                if (correctBtn) correctBtn.classList.remove('choice-hint');
-            }, 2000);
+            setTimeout(() => { btn.classList.remove('choice-wrong'); if (correctBtn) correctBtn.classList.remove('choice-hint'); }, 2000);
         }
     }
 
     function _completeActivity() {
-        Audio.playCelebration();
-        Character.celebrate();
-        Celebration.confetti();
+        Audio.playCelebration(); Character.celebrate(); Celebration.confetti();
         Voice.speak('You built all the webs! Great job!');
-
-        Progress.recordActivityPlayed('shape-builder');
-        _maybeUnlockShape();
-
-        setTimeout(() => {
-            if (onComplete) onComplete();
-        }, 3000);
+        _maybeUnlock();
+        setTimeout(() => { if (onComplete) onComplete(roundCorrect, roundTotal); }, 3000);
     }
 
-    function _maybeUnlockShape() {
+    function _maybeUnlock() {
         const stats = Progress.getStats('shape-builder');
         if (stats.played >= 2 && stats.shapesLearned.length < ALL_SHAPES.length) {
             const next = ALL_SHAPES.find(s => !stats.shapesLearned.includes(s.name));
@@ -137,16 +96,9 @@ const ShapeBuilder = (() => {
         const sticker = StickerBook.getNextUnearned();
         if (!sticker) return;
         Progress.awardSticker(sticker.id);
-        Audio.playSticker();
-        const overlay = document.createElement('div');
-        overlay.className = 'sticker-earned-overlay';
-        overlay.innerHTML = `<div class="sticker-earned-card"><div class="sticker-earned-emoji">${sticker.emoji}</div><div class="sticker-earned-text">New Sticker!</div></div>`;
-        document.body.appendChild(overlay);
-        Celebration.starBurst(window.innerWidth / 2, window.innerHeight / 2);
-        setTimeout(() => overlay.remove(), 2500);
+        Main.showStickerEarned(sticker);
     }
 
     function stop() { currentRound = totalRounds; }
-
     return { start, stop };
 })();

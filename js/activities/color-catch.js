@@ -18,6 +18,8 @@ const ColorCatch = (() => {
     let bugs = [];
     let caught = 0;
     let needed = 0;
+    let roundCorrect = 0;
+    let roundTotal = 0;
     let roundActive = false;
     let onComplete = null;
     let moveInterval = null;
@@ -27,6 +29,8 @@ const ColorCatch = (() => {
         onComplete = callback;
         caught = 0;
         needed = 3;
+        roundCorrect = 0;
+        roundTotal = 0;
         roundActive = true;
 
         // Pick colors based on what the child knows
@@ -118,6 +122,8 @@ const ColorCatch = (() => {
             // Correct!
             bug.caught = true;
             caught++;
+            roundCorrect++;
+            roundTotal++;
             Audio.playPop();
             Progress.recordAnswer('color-catch', true);
             Character.happy();
@@ -147,6 +153,7 @@ const ColorCatch = (() => {
             }
         } else {
             // Wrong color
+            roundTotal++;
             Audio.playWrong();
             Progress.recordAnswer('color-catch', false);
             Character.encourage();
@@ -189,13 +196,10 @@ const ColorCatch = (() => {
         Celebration.confetti();
         Voice.speak('Amazing! You caught them all!');
 
-        Progress.recordActivityPlayed('color-catch');
-
-        // Maybe expand content (unlock new color)
         _maybeUnlockColor();
 
         setTimeout(() => {
-            if (onComplete) onComplete();
+            if (onComplete) onComplete(roundCorrect, roundTotal);
         }, 3000);
     }
 
@@ -213,22 +217,7 @@ const ColorCatch = (() => {
         const sticker = StickerBook.getNextUnearned();
         if (!sticker) return;
         Progress.awardSticker(sticker.id);
-        Audio.playSticker();
-
-        // Show sticker earned overlay
-        const overlay = document.createElement('div');
-        overlay.className = 'sticker-earned-overlay';
-        overlay.innerHTML = `
-            <div class="sticker-earned-card">
-                <div class="sticker-earned-emoji">${sticker.emoji}</div>
-                <div class="sticker-earned-text">New Sticker!</div>
-            </div>
-        `;
-        document.body.appendChild(overlay);
-
-        Celebration.starBurst(window.innerWidth / 2, window.innerHeight / 2);
-
-        setTimeout(() => overlay.remove(), 2500);
+        Main.showStickerEarned(sticker);
     }
 
     function stop() {

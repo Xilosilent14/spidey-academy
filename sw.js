@@ -1,24 +1,15 @@
-const CACHE_NAME = 'spidey-academy-v1';
+const CACHE_NAME = 'spidey-academy-v2';
 
 const ASSETS = [
-    '/',
-    '/index.html',
-    '/offline.html',
-    '/css/style.css',
-    '/css/shared/design-system.css',
-    '/js/otb-config.js',
-    '/js/ecosystem.js',
-    '/js/voice.js',
-    '/js/audio.js',
-    '/js/progress.js',
-    '/js/celebration.js',
-    '/js/character.js',
-    '/js/sticker-book.js',
-    '/js/main.js',
-    '/js/activities/color-catch.js',
-    '/js/activities/shape-builder.js',
-    '/js/activities/number-bugs.js',
-    '/js/activities/letter-web.js',
+    '/', '/index.html', '/offline.html',
+    '/css/style.css', '/css/shared/design-system.css',
+    '/js/otb-config.js', '/js/ecosystem.js',
+    '/js/voice.js', '/js/audio.js', '/js/progress.js',
+    '/js/celebration.js', '/js/character.js',
+    '/js/backgrounds.js', '/js/badges.js',
+    '/js/sticker-book.js', '/js/main.js',
+    '/js/activities/color-catch.js', '/js/activities/shape-builder.js',
+    '/js/activities/number-bugs.js', '/js/activities/letter-web.js',
     '/js/activities/sort-sweep.js',
     '/manifest.json'
 ];
@@ -44,9 +35,7 @@ self.addEventListener('fetch', event => {
         caches.match(event.request)
             .then(cached => cached || fetch(event.request))
             .catch(() => {
-                if (event.request.mode === 'navigate') {
-                    return caches.match('/offline.html');
-                }
+                if (event.request.mode === 'navigate') return caches.match('/offline.html');
             })
     );
 });
