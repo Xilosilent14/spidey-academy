@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#e23636">
+    <meta name="screen-orientation" content="landscape">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:;">
+    <title>Spidey Academy</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/shared/design-system.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Celebration Canvas (always on top) -->
+    <canvas id="celebration-canvas"></canvas>
+
+    <!-- OTB Hub Button -->
+    <button class="btn-hub" id="btn-hub">🏠 OTB Games</button>
+
+    <!-- Webby Sidekick (always visible) -->
+    <div id="webby-character" class="webby-char webby-idle">
+        <div class="webby-body">
+            <div class="webby-eyes">
+                <div class="webby-eye"></div>
+                <div class="webby-eye"></div>
+            </div>
+        </div>
+        <div class="webby-legs">
+            <div class="webby-leg"></div>
+            <div class="webby-leg"></div>
+            <div class="webby-leg"></div>
+            <div class="webby-leg"></div>
+            <div class="webby-leg"></div>
+            <div class="webby-leg"></div>
+        </div>
+    </div>
+
+    <!-- ===== SPLASH SCREEN ===== -->
+    <div id="screen-splash" class="screen active">
+        <div class="splash-content">
+            <span class="splash-logo">🕷️</span>
+            <div class="splash-title">Spidey Academy</div>
+            <div class="splash-subtitle">Learn with Spidey!</div>
+            <div class="splash-loader">
+                <div class="splash-loader-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== HOME SCREEN ===== -->
+    <div id="screen-home" class="screen">
+        <div class="home-layout">
+            <div class="home-character-area">
+                <div id="spidey-character" class="spidey-char spidey-idle">
+                    <div class="spidey-eyes">
+                        <div class="spidey-eye"></div>
+                        <div class="spidey-eye"></div>
+                    </div>
+                    <div class="spidey-belt"></div>
+                    <div class="spidey-arm left"></div>
+                    <div class="spidey-arm right"></div>
+                </div>
+                <div class="home-greeting">
+                    <h1>Hi, <span id="home-player-name">Asher</span>!</h1>
+                    <div class="home-subtitle">Ready to learn?</div>
+                    <div class="home-sticker-badge">
+                        ⭐ <span id="home-sticker-count">0 / 30</span> Stickers
+                    </div>
+                    <div class="home-sticker-badge" style="margin-top:4px">
+                        <span id="home-level">Level 1</span>
+                    </div>
+                </div>
+            </div>
+            <div class="home-buttons">
+                <button class="big-btn btn-play" id="btn-play">🎮 Play!</button>
+                <button class="big-btn btn-stickers" id="btn-stickers">⭐ Stickers</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ACTIVITY SELECT ===== -->
+    <div id="screen-activities" class="screen">
+        <div class="activities-layout">
+            <div class="activities-header">
+                <button class="back-btn" id="btn-activities-back">◀</button>
+                <span class="activities-title">Pick a Game!</span>
+            </div>
+            <div class="activity-grid" id="activity-grid"></div>
+        </div>
+    </div>
+
+    <!-- ===== ACTIVITY PLAY ===== -->
+    <div id="screen-activity" class="screen">
+        <div class="activity-play-layout">
+            <div id="activity-container"></div>
+        </div>
+    </div>
+
+    <!-- ===== STICKER BOOK ===== -->
+    <div id="screen-stickers" class="screen">
+        <div class="stickers-layout">
+            <div class="stickers-header">
+                <button class="back-btn" id="btn-stickers-back">◀</button>
+                <span class="stickers-title">⭐ My Stickers</span>
+            </div>
+            <div id="sticker-container"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/otb-config.js"></script>
+    <script src="js/ecosystem.js"></script>
+    <script src="js/voice.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/progress.js"></script>
+    <script src="js/celebration.js"></script>
+    <script src="js/character.js"></script>
+    <script src="js/sticker-book.js"></script>
+    <script src="js/activities/color-catch.js"></script>
+    <script src="js/activities/shape-builder.js"></script>
+    <script src="js/activities/number-bugs.js"></script>
+    <script src="js/activities/letter-web.js"></script>
+    <script src="js/activities/sort-sweep.js"></script>
+    <script src="js/main.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+        }
+    </script>
+</body>
+</html>
