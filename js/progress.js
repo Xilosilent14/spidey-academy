@@ -30,9 +30,13 @@ const Progress = (() => {
         'Spidey Champion'    // 20
     ];
 
+    // Grade levels: 0=Pre-K, 1=Kindergarten, 2=1st Grade, 3=2nd Grade
+    const GRADE_NAMES = ['Pre-K', 'Kindergarten', '1st Grade', '2nd Grade'];
+
     const DEFAULTS = {
         version: VERSION,
         playerName: 'Asher',
+        gradeLevel: 0,
         totalCorrect: 0,
         totalAttempts: 0,
         correctSinceLastSticker: 0,
@@ -266,6 +270,32 @@ const Progress = (() => {
         save();
     }
 
+    function getGradeLevel() { if (!data) load(); return data.gradeLevel || 0; }
+    function getGradeName() { if (!data) load(); return GRADE_NAMES[data.gradeLevel || 0]; }
+
+    function setGradeLevel(level) {
+        if (!data) load();
+        data.gradeLevel = Math.max(0, Math.min(3, level));
+        save();
+    }
+
+    /** Auto-advance grade if player has enough mastery at current grade.
+     *  Called after activity completion. Requires 80%+ accuracy over 15+ attempts. */
+    function checkGradeAdvance() {
+        if (!data) load();
+        if (data.gradeLevel >= 3) return false; // Already at max
+        if (data.totalAttempts < 15) return false;
+        const accuracy = data.totalCorrect / data.totalAttempts;
+        // Need 80%+ accuracy and at least level 5 per grade to advance
+        const minLevel = (data.gradeLevel + 1) * 5;
+        if (accuracy >= 0.8 && data.level >= minLevel) {
+            data.gradeLevel++;
+            save();
+            return data.gradeLevel;
+        }
+        return false;
+    }
+
     function getTimeGreeting() {
         const h = new Date().getHours();
         if (h < 12) return 'Good morning';
@@ -281,6 +311,7 @@ const Progress = (() => {
         getPlayerName, setPlayerName, expandContent,
         getLevel, getLevelName, getXP, getXPForNextLevel, getXPProgress,
         getStreak, getBadges, getTimeGreeting,
+        getGradeLevel, getGradeName, setGradeLevel, checkGradeAdvance,
         get data() { return data; }
     };
 })();

@@ -122,6 +122,9 @@ const Main = (() => {
         const badgeStat = document.getElementById('home-badge-stat');
         if (badgeStat) badgeStat.textContent = `🏅 ${Badges.getEarnedCount()}/${Badges.BADGE_DEFS.length}`;
 
+        const gradeStat = document.getElementById('home-grade-stat');
+        if (gradeStat) gradeStat.textContent = `📚 ${Progress.getGradeName()}`;
+
         // Render badges
         _renderBadges();
     }
@@ -227,10 +230,17 @@ const Main = (() => {
             _showLevelUp(newLevel);
         }
 
+        // Check for grade advance
+        const newGrade = Progress.checkGradeAdvance();
+        if (newGrade) {
+            setTimeout(() => _showGradeUp(newGrade), newLevel ? 3500 : 500);
+        }
+
         // Check for new badges
         const newBadges = Badges.checkAll();
+        const badgeDelay = newLevel ? 3000 : (newGrade ? 4000 : 500);
         if (newBadges.length > 0) {
-            setTimeout(() => _showBadgeEarned(newBadges[0]), newLevel ? 3000 : 500);
+            setTimeout(() => _showBadgeEarned(newBadges[0]), badgeDelay);
         }
 
         // Session time check
@@ -259,6 +269,24 @@ const Main = (() => {
         Voice.speak(`Level ${level}! You are now a ${Progress.getLevelName()}!`);
 
         setTimeout(() => { overlay.style.display = 'none'; }, 3500);
+    }
+
+    function _showGradeUp(gradeLevel) {
+        const overlay = document.createElement('div');
+        overlay.className = 'grade-up-overlay';
+        overlay.innerHTML = `
+            <div class="grade-up-card">
+                <div class="grade-up-icon">📚</div>
+                <div class="grade-up-text">Grade Up!</div>
+                <div class="grade-up-name">${Progress.getGradeName()}</div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        Audio.playCelebration();
+        Celebration.confetti(3000);
+        Character.celebrate();
+        Voice.speak(`Amazing! You moved up to ${Progress.getGradeName()}!`);
+        setTimeout(() => overlay.remove(), 3500);
     }
 
     function _showBadgeEarned(badge) {
@@ -348,6 +376,15 @@ const Main = (() => {
         });
         document.getElementById('btn-hub')?.addEventListener('click', () => {
             window.location.href = OTBConfig.getHubUrl();
+        });
+        document.getElementById('btn-parents')?.addEventListener('click', () => {
+            Audio.playTap();
+            _showScreen('parent-gate');
+            ParentDashboard.showGate();
+        });
+        document.getElementById('btn-parent-back')?.addEventListener('click', () => {
+            Audio.playTap();
+            _showScreen('home');
         });
     }
 

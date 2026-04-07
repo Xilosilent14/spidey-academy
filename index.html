@@ -10,6 +10,8 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:;">
     <title>Spidey Academy</title>
     <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link rel="stylesheet" href="css/shared/design-system.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -18,7 +20,7 @@
     <canvas id="celebration-canvas"></canvas>
 
     <!-- OTB Hub Button -->
-    <button class="btn-hub" id="btn-hub" aria-label="Back to Hub">🏠 Home</button>
+    <button class="btn-hub" id="btn-hub" style="display:none" aria-label="Back to Hub">🏠 Home</button>
 
     <!-- Webby Sidekick -->
     <div id="webby-character" class="webby-char webby-idle">
@@ -37,6 +39,8 @@
 
     <!-- ===== HOME ===== -->
     <div id="screen-home" class="screen">
+        <div class="otb-badge" style="position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:15;">Blake Boys Gaming</div>
+        <a id="bbg-logo-link" href="#" class="bbg-corner-logo-link" aria-label="Return to Hub"><img src="assets/bbg-logo.png" alt="BBG" class="bbg-corner-logo"></a>
         <div class="home-layout">
             <div class="home-top-row">
                 <div class="home-char-col">
@@ -55,6 +59,7 @@
                         <span class="home-stat" id="home-sticker-stat">⭐ 0/30</span>
                         <span class="home-stat" id="home-streak-stat">🔥 0 days</span>
                         <span class="home-stat" id="home-badge-stat">🏅 0/8</span>
+                        <span class="home-stat" id="home-grade-stat">📚 Pre-K</span>
                     </div>
                 </div>
             </div>
@@ -62,6 +67,7 @@
                 <button class="big-btn btn-play" id="btn-play" aria-label="Play activities">🎮 Play!</button>
                 <button class="big-btn btn-stickers" id="btn-stickers" aria-label="View sticker book">⭐ Stickers</button>
             </div>
+            <button class="btn-parents" id="btn-parents" aria-label="Parent dashboard">👤 Parents</button>
             <!-- Badges row -->
             <div class="home-badges" id="home-badges"></div>
         </div>
@@ -97,6 +103,24 @@
         </div>
     </div>
 
+    <!-- ===== PARENT GATE ===== -->
+    <div id="screen-parent-gate" class="screen">
+        <div class="parent-gate-layout">
+            <div id="parent-gate-content"></div>
+        </div>
+    </div>
+
+    <!-- ===== PARENT DASHBOARD ===== -->
+    <div id="screen-parent-dashboard" class="screen">
+        <div class="parent-dashboard-layout">
+            <div class="pd-header">
+                <button class="back-btn" id="btn-parent-back" aria-label="Back to home">◀</button>
+                <span class="pd-title">Parent Dashboard</span>
+            </div>
+            <div class="pd-scroll" id="parent-dashboard-content"></div>
+        </div>
+    </div>
+
     <!-- Level Up Overlay -->
     <div id="level-up-overlay" class="level-up-overlay" style="display:none">
         <div class="level-up-card">
@@ -126,14 +150,17 @@
     <script src="js/character.js"></script>
     <script src="js/backgrounds.js"></script>
     <script src="js/badges.js"></script>
+    <script src="js/achievements.js"></script>
     <script src="js/sticker-book.js"></script>
     <script src="js/activities/color-catch.js"></script>
     <script src="js/activities/shape-builder.js"></script>
     <script src="js/activities/number-bugs.js"></script>
     <script src="js/activities/letter-web.js"></script>
     <script src="js/activities/sort-sweep.js"></script>
+    <script src="js/parent-dashboard.js"></script>
     <script src="js/main.js"></script>
     <script>
+        if(typeof OTBConfig!=='undefined'){const u=OTBConfig.getHubUrl();const l=document.getElementById('bbg-logo-link');if(l)l.href=u;}
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js').catch(() => {});
         }
