@@ -18,19 +18,19 @@
     <canvas id="celebration-canvas"></canvas>
 
     <!-- OTB Hub Button -->
-    <button class="btn-hub" id="btn-hub">🏠 OTB</button>
+    <button class="btn-hub" id="btn-hub">🏠 Home</button>
 
     <!-- Webby Sidekick -->
-    <div id="webby-character" class="webby-char webby-idle"></div>
+    <div id="webby-character" class="webby-char webby-idle">
+        <img src="assets/webby.png" alt="Webby" class="webby-img">
+    </div>
 
     <!-- ===== SPLASH ===== -->
     <div id="screen-splash" class="screen active">
         <div class="splash-content">
-            <div class="splash-spidey-wrap">
-                <div id="splash-spidey" class="spidey-char spidey-idle" style="width:120px;height:160px"></div>
+            <div class="splash-banner-wrap">
+                <img src="assets/banner.png" alt="Spidey Academy" class="splash-banner-img">
             </div>
-            <div class="splash-title">Spidey Academy</div>
-            <div class="splash-subtitle">Learn with Spidey!</div>
             <div class="splash-loader"><div class="splash-loader-fill"></div></div>
         </div>
     </div>
@@ -40,7 +40,7 @@
         <div class="home-layout">
             <div class="home-top-row">
                 <div class="home-char-col">
-                    <div id="spidey-character" class="spidey-char spidey-idle" style="width:110px;height:150px"></div>
+                    <img src="assets/hero.png" alt="Bug Hero" class="home-hero-img" id="spidey-character">
                 </div>
                 <div class="home-info-col">
                     <h1 class="home-greeting-text" id="home-greeting"></h1>
