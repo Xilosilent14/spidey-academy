@@ -37,6 +37,18 @@
         </div>
     </div>
 
+    <!-- ===== TITLE ===== -->
+    <div id="screen-title" class="screen">
+        <div class="otb-badge" style="position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:15;">Blake Boys Gaming</div>
+        <a id="title-bbg-logo-link" href="#" class="bbg-corner-logo-link" aria-label="Return to Hub"><img src="assets/bbg-logo.png" alt="BBG" class="bbg-corner-logo"></a>
+        <div class="title-content">
+            <img src="assets/hero.png" alt="Spidey" class="title-hero-img">
+            <h1 class="title-game-name">SPIDEY<br><span class="title-game-accent">ACADEMY</span></h1>
+            <div class="title-subtitle">Learn with Spidey &amp; Friends!</div>
+            <button class="big-btn btn-play title-play-btn" id="btn-title-play" aria-label="Play">&#x1F3AE; PLAY</button>
+        </div>
+    </div>
+
     <!-- ===== HOME ===== -->
     <div id="screen-home" class="screen">
         <div class="otb-badge" style="position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:15;">Blake Boys Gaming</div>
@@ -160,7 +172,7 @@
     <script src="js/parent-dashboard.js"></script>
     <script src="js/main.js"></script>
     <script>
-        if(typeof OTBConfig!=='undefined'){const u=OTBConfig.getHubUrl();const l=document.getElementById('bbg-logo-link');if(l)l.href=u;}
+        if(typeof OTBConfig!=='undefined'){const u=OTBConfig.getHubUrl();const l=document.getElementById('bbg-logo-link');if(l)l.href=u;const l2=document.getElementById('title-bbg-logo-link');if(l2)l2.href=u;}
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js').catch(() => {});
         }

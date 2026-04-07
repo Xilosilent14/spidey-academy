@@ -125,6 +125,70 @@ html, body {
 }
 @keyframes loadBar { to { width: 100%; } }
 
+/* ============ TITLE SCREEN ============ */
+#screen-title {
+    background: url('../assets/bg-title.png') center center / cover no-repeat, var(--otb-bg-primary, #1a1a2e);
+}
+#screen-title::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(5, 5, 20, 0.65) 0%, rgba(10, 10, 30, 0.4) 40%, rgba(5, 5, 20, 0.7) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+#screen-title > *:not(.otb-badge):not(.bbg-corner-logo-link) { position: relative; z-index: 1; }
+.title-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+    z-index: 1;
+}
+.title-hero-img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    object-position: center 25%;
+    border-radius: 50%;
+    border: 3px solid rgba(226, 54, 54, 0.5);
+    box-shadow: 0 0 20px rgba(226, 54, 54, 0.3);
+    animation: titleHeroPulse 3s ease-in-out infinite;
+}
+@keyframes titleHeroPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(226, 54, 54, 0.3); }
+    50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(226, 54, 54, 0.5); }
+}
+.title-game-name {
+    font-family: var(--otb-font-heading, 'Fredoka One', cursive);
+    font-size: 52px;
+    line-height: 1;
+    color: #fff;
+    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(226, 54, 54, 0.3);
+    letter-spacing: 3px;
+}
+.title-game-accent {
+    color: var(--spidey-red, #e23636);
+    text-shadow: 0 3px 12px rgba(226, 54, 54, 0.5), 0 0 40px rgba(226, 54, 54, 0.3);
+}
+.title-subtitle {
+    font-family: var(--otb-font-body, 'Nunito', sans-serif);
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.8);
+    font-style: italic;
+    margin-bottom: 8px;
+}
+.title-play-btn {
+    font-size: 22px;
+    padding: 12px 48px;
+    animation: titlePlayPulse 2s ease-in-out infinite;
+}
+@keyframes titlePlayPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+}
+
 /* ============ HOME ============ */
 .home-layout {
     display: flex;

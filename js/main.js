@@ -50,11 +50,7 @@ const Main = (() => {
         }, 800);
 
         setTimeout(() => {
-            _showScreen('home');
-            // Daily bonus check
-            if (Progress.isDailyBonus()) {
-                _showDailyBonus();
-            }
+            _showScreen('title');
         }, 3000);
     }
 
@@ -357,6 +353,13 @@ const Main = (() => {
     }
 
     function _bindButtons() {
+        document.getElementById('btn-title-play')?.addEventListener('click', () => {
+            Audio.playTap();
+            _showScreen('home');
+            if (Progress.isDailyBonus()) {
+                _showDailyBonus();
+            }
+        });
         document.getElementById('btn-play')?.addEventListener('click', () => {
             Audio.playTap();
             Audio.playWhoosh();
