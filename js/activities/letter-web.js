@@ -1,13 +1,23 @@
 /**
  * Letter Web — Find the matching letter!
+ * V2: 8 rounds, uppercase/lowercase matching, faster unlock (3 per 2 plays), sound hints
  */
 const LetterWeb = (() => {
     const ALL_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
     const LETTER_COLORS = ['#e23636','#2196F3','#4CAF50','#FFD600','#FF9800','#9C27B0','#00BCD4','#E056A0','#8BC34A','#FF5722'];
 
+    // Letter sound hints: phonetic sound for each letter
+    const LETTER_SOUNDS = {
+        A: 'ah', B: 'buh', C: 'kuh', D: 'duh', E: 'eh', F: 'fff', G: 'guh', H: 'huh',
+        I: 'ih', J: 'juh', K: 'kuh', L: 'lll', M: 'mmm', N: 'nnn', O: 'oh', P: 'puh',
+        Q: 'kwuh', R: 'rrr', S: 'sss', T: 'tuh', U: 'uh', V: 'vvv', W: 'wuh',
+        X: 'ks', Y: 'yuh', Z: 'zzz'
+    };
+
     let container = null, onComplete = null;
-    let currentRound = 0, totalRounds = 5, targetLetter = '';
+    let currentRound = 0, totalRounds = 8, targetLetter = '';
     let roundCorrect = 0, roundTotal = 0;
+    let useLowercase = false; // alternates: show upper, match lower (or vice versa)
 
     function start(containerEl, callback) {
         container = containerEl;
@@ -27,6 +37,18 @@ const LetterWeb = (() => {
         const distractors = available.filter(l => l !== targetLetter).sort(() => Math.random() - 0.5);
         const choices = [targetLetter, ...distractors.slice(0, 2)].sort(() => Math.random() - 0.5);
 
+        // Uppercase/lowercase mode: after player knows 6+ letters, alternate
+        // Even rounds show uppercase target with lowercase choices, odd rounds normal
+        useLowercase = available.length >= 6 && currentRound % 3 === 2;
+
+        const displayTarget = useLowercase ? targetLetter : targetLetter;
+        const displayChoices = useLowercase
+            ? choices.map(l => l.toLowerCase())
+            : choices;
+
+        // Use sound hint every 3rd round to reinforce phonics
+        const useSoundHint = currentRound % 3 === 1;
+
         container.innerHTML = `
             <div class="activity-prompt"><span class="round-counter">${currentRound + 1} / ${totalRounds}</span></div>
             <div class="letter-web-display">
@@ -40,18 +62,30 @@ const LetterWeb = (() => {
                         <line x1="30" y1="30" x2="170" y2="170" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
                         <line x1="170" y1="30" x2="30" y2="170" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
                     </svg>
-                    <div class="letter-web-target" style="color:${targetColor}">${targetLetter}</div>
+                    <div class="letter-web-target" style="color:${targetColor}">${displayTarget}</div>
                 </div>
             </div>
             <div class="letter-choices">
-                ${choices.map(l => {
-                    const color = LETTER_COLORS[ALL_LETTERS.indexOf(l) % LETTER_COLORS.length];
-                    return `<button class="letter-choice-btn" data-letter="${l}" style="--letter-color:${color}"><span class="letter-text">${l}</span></button>`;
+                ${displayChoices.map((l, i) => {
+                    const origLetter = choices[i];
+                    const color = LETTER_COLORS[ALL_LETTERS.indexOf(origLetter) % LETTER_COLORS.length];
+                    return `<button class="letter-choice-btn" data-letter="${origLetter}" style="--letter-color:${color}"><span class="letter-text">${l}</span></button>`;
                 }).join('')}
             </div>
         `;
         container.querySelectorAll('.letter-choice-btn').forEach(btn => btn.addEventListener('click', () => _onChoice(btn)));
-        setTimeout(() => Voice.speak(`Find the letter ${targetLetter}!`), 400);
+
+        // Voice prompt: sound hint or letter name
+        setTimeout(() => {
+            if (useSoundHint) {
+                const sound = LETTER_SOUNDS[targetLetter] || targetLetter;
+                Voice.speak(`Find the letter that says "${sound}"!`);
+            } else if (useLowercase) {
+                Voice.speak(`Find the lowercase ${targetLetter}!`);
+            } else {
+                Voice.speak(`Find the letter ${targetLetter}!`);
+            }
+        }, 400);
     }
 
     function _onChoice(btn) {
@@ -65,7 +99,8 @@ const LetterWeb = (() => {
             btn.classList.add('choice-correct');
             const rect = btn.getBoundingClientRect();
             Celebration.sparkle(rect.left + rect.width / 2, rect.top + rect.height / 2);
-            Voice.speak(`Yes! That's ${targetLetter}!`);
+            const sound = LETTER_SOUNDS[targetLetter] || '';
+            Voice.speak(`Yes! ${targetLetter} says "${sound}"!`);
             if (Progress.shouldAwardSticker()) _awardSticker();
             currentRound++;
             setTimeout(_nextQuestion, 1500);
@@ -90,8 +125,9 @@ const LetterWeb = (() => {
 
     function _maybeUnlock() {
         const stats = Progress.getStats('letter-web');
+        // Faster unlock: 3 new letters after 2 good plays (was 2 letters)
         if (stats.played >= 2 && stats.lettersLearned.length < ALL_LETTERS.length) {
-            const toAdd = ALL_LETTERS.filter(l => !stats.lettersLearned.includes(l)).slice(0, 2);
+            const toAdd = ALL_LETTERS.filter(l => !stats.lettersLearned.includes(l)).slice(0, 3);
             toAdd.forEach(l => Progress.expandContent('letter-web', l));
         }
     }

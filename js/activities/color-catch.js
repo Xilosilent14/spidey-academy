@@ -2,6 +2,7 @@
  * Color Catch — Tap bugs of the target color!
  * Voice: "Can you catch the RED bugs?"
  * Bugs crawl across screen, tap matching ones.
+ * V2: pink/brown, 4-5 needed, 8-12 total, speed progression
  */
 const ColorCatch = (() => {
     const ALL_COLORS = [
@@ -10,7 +11,9 @@ const ColorCatch = (() => {
         { name: 'yellow', hex: '#FFD600', dark: '#C7A500' },
         { name: 'green', hex: '#4CAF50', dark: '#2E7D32' },
         { name: 'orange', hex: '#FF9800', dark: '#E65100' },
-        { name: 'purple', hex: '#9C27B0', dark: '#6A1B9A' }
+        { name: 'purple', hex: '#9C27B0', dark: '#6A1B9A' },
+        { name: 'pink', hex: '#FF69B4', dark: '#D84D97' },
+        { name: 'brown', hex: '#8B4513', dark: '#5C2D0E' }
     ];
 
     let container = null;
@@ -23,12 +26,12 @@ const ColorCatch = (() => {
     let roundActive = false;
     let onComplete = null;
     let moveInterval = null;
+    let baseSpeed = 1.2;
 
     function start(containerEl, callback) {
         container = containerEl;
         onComplete = callback;
         caught = 0;
-        needed = 3;
         roundCorrect = 0;
         roundTotal = 0;
         roundActive = true;
@@ -36,10 +39,19 @@ const ColorCatch = (() => {
         // Pick colors based on what the child knows
         const stats = Progress.getStats('color-catch');
         const availableColors = ALL_COLORS.filter(c => stats.colorsLearned.includes(c.name));
-        targetColor = availableColors[Math.floor(Math.random() * availableColors.length)];
 
-        // Build bug field
-        const bugCount = 6 + Math.floor(Math.random() * 3); // 6-8 bugs
+        // Difficulty progression: need more bugs as they learn more colors
+        const learnedCount = stats.colorsLearned.length;
+        needed = learnedCount >= 5 ? 5 : (learnedCount >= 3 ? 4 : 3);
+
+        // Speed increases slightly with experience (stays gentle for a 3yo)
+        const playCount = stats.played || 0;
+        baseSpeed = 1.2 + Math.min(playCount * 0.05, 0.6); // caps at 1.8
+
+        // Bug count scales: 8-12 based on difficulty
+        const bugCount = 8 + Math.min(Math.floor(learnedCount / 2), 4); // 8-12
+
+        targetColor = availableColors[Math.floor(Math.random() * availableColors.length)];
         bugs = [];
 
         // Ensure at least `needed` are the target color
@@ -58,8 +70,8 @@ const ColorCatch = (() => {
                 x: 80 + Math.random() * (window.innerWidth - 200),
                 y: 80 + Math.random() * (window.innerHeight - 220),
                 caught: false,
-                vx: (Math.random() - 0.5) * 1.2,
-                vy: (Math.random() - 0.5) * 1.2,
+                vx: (Math.random() - 0.5) * baseSpeed,
+                vy: (Math.random() - 0.5) * baseSpeed,
                 wobble: Math.random() * Math.PI * 2
             });
         }
@@ -139,6 +151,14 @@ const ColorCatch = (() => {
             // Update count
             const countEl = container.querySelector('.catch-count');
             if (countEl) countEl.textContent = `${caught} / ${needed}`;
+
+            // Speed up remaining bugs slightly after each catch (gentle ramp)
+            bugs.forEach(b => {
+                if (!b.caught) {
+                    b.vx *= 1.05;
+                    b.vy *= 1.05;
+                }
+            });
 
             // Check if round complete
             if (caught >= needed) {

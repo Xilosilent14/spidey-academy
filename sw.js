@@ -1,4 +1,4 @@
-const CACHE_NAME = 'spidey-academy-v2';
+const CACHE_NAME = 'spidey-academy-v4';
 
 const ASSETS = [
     '/', '/index.html', '/offline.html',
@@ -11,7 +11,12 @@ const ASSETS = [
     '/js/activities/color-catch.js', '/js/activities/shape-builder.js',
     '/js/activities/number-bugs.js', '/js/activities/letter-web.js',
     '/js/activities/sort-sweep.js',
-    '/manifest.json'
+    '/manifest.json',
+    '/assets/banner.png',
+    '/assets/hero.png',
+    '/assets/webby.png',
+    '/icons/icon-192.png',
+    '/icons/icon-512.png'
 ];
 
 self.addEventListener('install', event => {

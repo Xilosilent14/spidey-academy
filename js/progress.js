@@ -47,7 +47,7 @@ const Progress = (() => {
         activityStats: {
             'color-catch': { played: 0, correct: 0, attempts: 0, bestStreak: 0, currentStreak: 0, lastStars: 0, colorsLearned: ['red', 'blue'] },
             'shape-builder': { played: 0, correct: 0, attempts: 0, bestStreak: 0, currentStreak: 0, lastStars: 0, shapesLearned: ['circle', 'square', 'triangle'] },
-            'number-bugs': { played: 0, correct: 0, attempts: 0, bestStreak: 0, currentStreak: 0, lastStars: 0, maxNumber: 3 },
+            'number-bugs': { played: 0, correct: 0, attempts: 0, bestStreak: 0, currentStreak: 0, lastStars: 0, maxNumber: 5 },
             'letter-web': { played: 0, correct: 0, attempts: 0, bestStreak: 0, currentStreak: 0, lastStars: 0, lettersLearned: ['A', 'B', 'C', 'O'] },
             'sort-sweep': { played: 0, correct: 0, attempts: 0, bestStreak: 0, currentStreak: 0, lastStars: 0 }
         },
@@ -261,7 +261,7 @@ const Progress = (() => {
         } else if (activityId === 'letter-web' && !stats.lettersLearned.includes(item)) {
             stats.lettersLearned.push(item);
         } else if (activityId === 'number-bugs') {
-            stats.maxNumber = Math.min(10, Math.max(stats.maxNumber, item));
+            stats.maxNumber = Math.min(15, Math.max(stats.maxNumber, item));
         }
         save();
     }
