@@ -27,7 +27,7 @@ const Main = (() => {
 
         // Init splash character
         const splashChar = document.getElementById('splash-spidey');
-        if (splashChar) splashChar.innerHTML = Character._spideySVG ? '' : '';
+        if (splashChar && Character._spideySVG) splashChar.innerHTML = Character._spideySVG;
 
         document.addEventListener('click', () => Audio.unlock(), { once: true });
         document.addEventListener('touchstart', () => Audio.unlock(), { once: true });

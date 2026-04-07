@@ -41,7 +41,7 @@ const LetterWeb = (() => {
         // Even rounds show uppercase target with lowercase choices, odd rounds normal
         useLowercase = available.length >= 6 && currentRound % 3 === 2;
 
-        const displayTarget = useLowercase ? targetLetter : targetLetter;
+        const displayTarget = useLowercase ? targetLetter.toLowerCase() : targetLetter;
         const displayChoices = useLowercase
             ? choices.map(l => l.toLowerCase())
             : choices;
