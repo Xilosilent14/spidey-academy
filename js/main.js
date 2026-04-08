@@ -35,8 +35,8 @@ const Main = (() => {
         _bindButtons();
         _showSplash();
 
-        if (typeof OTBEcosystem !== 'undefined' && OTBEcosystem.updateStreak) {
-            OTBEcosystem.updateStreak();
+        if (typeof OTBEcosystem !== 'undefined') {
+            OTBEcosystem.checkDailyStreak();
         }
     }
 
@@ -218,6 +218,15 @@ const Main = (() => {
         // Record with star rating
         if (currentActivity) {
             Progress.recordActivityPlayed(currentActivity.id, roundCorrect, roundTotal);
+        }
+
+        // Ecosystem integration: XP, coins, and answer tracking
+        if (typeof OTBEcosystem !== 'undefined') {
+            const accuracy = total > 0 ? correct / total : 0;
+            const xpReward = Math.floor(10 + (accuracy * 40));
+            const coinReward = Math.floor(accuracy * 10);
+            OTBEcosystem.addXP(xpReward, currentActivity ? currentActivity.id : 'unknown');
+            OTBEcosystem.addCoins(coinReward, currentActivity ? currentActivity.id : 'unknown');
         }
 
         // Check for level up
