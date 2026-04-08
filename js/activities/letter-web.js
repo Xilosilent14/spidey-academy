@@ -489,7 +489,7 @@ const LetterWeb = (() => {
 
     function _maybeUnlock() {
         const stats = Progress.getStats('letter-web');
-        if (stats.played >= 2 && stats.lettersLearned.length < ALL_LETTERS.length) {
+        if (stats.played >= 2 && stats.lettersLearned && stats.lettersLearned.length < ALL_LETTERS.length) {
             const toAdd = ALL_LETTERS.filter(l => !stats.lettersLearned.includes(l)).slice(0, 3);
             toAdd.forEach(l => Progress.expandContent('letter-web', l));
         }

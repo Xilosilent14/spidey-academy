@@ -108,7 +108,7 @@ const ColorCatch = (() => {
         const grade = Progress.getGradeLevel();
         const learned = (stats.colorsLearned && stats.colorsLearned.length > 0) ? stats.colorsLearned : ['red', 'blue'];
         const availableColors = PREK_COLORS.filter(c => learned.includes(c.name));
-        const learnedCount = stats.colorsLearned.length;
+        const learnedCount = learned.length;
 
         // Difficulty scales with grade
         needed = grade >= 1
@@ -555,7 +555,7 @@ const ColorCatch = (() => {
 
     function _maybeUnlockColor() {
         const stats = Progress.getStats('color-catch');
-        if (stats.played >= 2 && stats.colorsLearned.length < PREK_COLORS.length) {
+        if (stats.played >= 2 && stats.colorsLearned && stats.colorsLearned.length < PREK_COLORS.length) {
             const nextColor = PREK_COLORS.find(c => !stats.colorsLearned.includes(c.name));
             if (nextColor) Progress.expandContent('color-catch', nextColor.name);
         }

@@ -428,7 +428,7 @@ const ShapeBuilder = (() => {
 
     function _maybeUnlock() {
         const stats = Progress.getStats('shape-builder');
-        if (stats.played >= 2 && stats.shapesLearned.length < ALL_SHAPES.length) {
+        if (stats.played >= 2 && stats.shapesLearned && stats.shapesLearned.length < ALL_SHAPES.length) {
             const next = ALL_SHAPES.find(s => !stats.shapesLearned.includes(s.name));
             if (next) Progress.expandContent('shape-builder', next.name);
         }
