@@ -117,7 +117,8 @@ const ShapeBuilder = (() => {
     function _preKQuestion() {
         questionType = 'match';
         const stats = Progress.getStats('shape-builder');
-        const available = ALL_SHAPES.filter(s => stats.shapesLearned.includes(s.name));
+        const learned = (stats.shapesLearned && stats.shapesLearned.length > 0) ? stats.shapesLearned : ['circle', 'square', 'triangle'];
+        const available = ALL_SHAPES.filter(s => learned.includes(s.name));
         targetShape = available[Math.floor(Math.random() * available.length)];
         const distractors = available.filter(s => s.name !== targetShape.name).sort(() => Math.random() - 0.5);
         const choiceCount = available.length >= 4 ? 4 : 3;

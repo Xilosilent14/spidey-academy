@@ -106,7 +106,8 @@ const ColorCatch = (() => {
     function _startCatchRound() {
         const stats = Progress.getStats('color-catch');
         const grade = Progress.getGradeLevel();
-        const availableColors = PREK_COLORS.filter(c => stats.colorsLearned.includes(c.name));
+        const learned = (stats.colorsLearned && stats.colorsLearned.length > 0) ? stats.colorsLearned : ['red', 'blue'];
+        const availableColors = PREK_COLORS.filter(c => learned.includes(c.name));
         const learnedCount = stats.colorsLearned.length;
 
         // Difficulty scales with grade

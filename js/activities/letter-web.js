@@ -162,7 +162,7 @@ const LetterWeb = (() => {
     function _preKQuestion() {
         questionType = 'letter';
         const stats = Progress.getStats('letter-web');
-        const available = stats.lettersLearned || ['A','B','C','O'];
+        const available = (stats.lettersLearned && stats.lettersLearned.length > 0) ? stats.lettersLearned : ['A','B','C','O'];
         targetLetter = available[Math.floor(Math.random() * available.length)];
         const targetColor = LETTER_COLORS[ALL_LETTERS.indexOf(targetLetter) % LETTER_COLORS.length];
         const distractors = available.filter(l => l !== targetLetter).sort(() => Math.random() - 0.5);
