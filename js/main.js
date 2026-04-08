@@ -386,6 +386,10 @@ const Main = (() => {
             Audio.playTap();
             _showScreen('home');
         });
+        document.getElementById('btn-activity-home')?.addEventListener('click', () => {
+            Audio.playTap();
+            _showScreen('home');
+        });
         document.getElementById('btn-hub')?.addEventListener('click', () => {
             window.location.href = OTBConfig.getHubUrl();
         });
