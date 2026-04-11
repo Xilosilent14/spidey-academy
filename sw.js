@@ -1,4 +1,4 @@
-const CACHE_NAME = 'spidey-academy-v17';
+const CACHE_NAME = 'spidey-academy-v18';
 
 const ASSETS = [
     '/', '/index.html', '/offline.html',
