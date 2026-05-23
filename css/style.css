@@ -1798,24 +1798,151 @@ html, body {
 .io-row { display: flex; border-top: 1px solid rgba(255,255,255,0.08); color: white; font-size: 18px; font-weight: 700; }
 .io-ask { color: rgba(255,255,255,0.8); font-size: 16px; margin-top: 10px; }
 
-/* === Fire tablet touch target minimums (48px for ages 3-6) === */
+/* === Fire tablet touch target minimums (Asher-sized for 3.5yo) ===
+   Primary actions: 100x120 (Play, big tiles)
+   Activity answer tiles: 80px
+   Secondary (Parents, Back, Settings): 48px floor (unchanged)
+   ============================================================ */
 .big-btn,
 .btn-play,
-.btn-stickers,
-.btn-hub,
-.btn-parents,
-.back-btn,
-.activity-card,
+.btn-stickers {
+    min-height: 100px;
+    min-width: 120px;
+    font-size: 24px;
+}
+.activity-card {
+    min-height: 120px;
+    min-width: 120px;
+}
 .shape-choice-btn,
 .number-choice-btn,
 .letter-choice-btn,
 .color-choice-btn,
 .shade-choice-btn,
 .warmcool-btn,
+.pattern-choice-btn,
+.sort-web,
 .time-btn,
 .blend-choice,
-.vt-choice,
+.vt-choice {
+    min-height: 80px;
+    min-width: 80px;
+}
+.btn-hub,
+.btn-parents,
+.back-btn,
 [role="button"] {
     min-height: 48px;
     min-width: 48px;
 }
+
+/* === Voice replay button (3.5yo Asher-sized 80px) === */
+.voice-replay-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80px;
+    min-width: 80px;
+    padding: 10px 18px;
+    margin-left: 12px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-radius: 999px;
+    background: linear-gradient(135deg, #2196F3, #1565C0);
+    color: #fff;
+    font-family: 'Fredoka One', cursive;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(33,150,243,0.4);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.voice-replay-btn:active { transform: scale(0.92); }
+
+/* === Hint cascade visuals === */
+.hint-pulse {
+    animation: hintPulse 1s ease-in-out infinite;
+    position: relative;
+    z-index: 6;
+}
+@keyframes hintPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,214,0,0); transform: scale(1); }
+    50% { box-shadow: 0 0 0 12px rgba(255,214,0,0.45); transform: scale(1.06); }
+}
+.hint-arrow {
+    position: fixed;
+    font-size: 48px;
+    z-index: 9998;
+    pointer-events: none;
+    animation: hintArrowBob 0.8s ease-in-out infinite;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
+}
+@keyframes hintArrowBob {
+    0%, 100% { transform: translateY(0) rotate(90deg); }
+    50% { transform: translateY(10px) rotate(90deg); }
+}
+
+/* === Sub-100ms tap confirmation === */
+.tap-correct-pulse {
+    animation: tapCorrectPulse 0.35s ease-out;
+}
+@keyframes tapCorrectPulse {
+    0% { box-shadow: 0 0 0 0 rgba(76,175,80,0.7); transform: scale(1); }
+    50% { box-shadow: 0 0 0 18px rgba(76,175,80,0.35); transform: scale(1.08); background-color: rgba(76,175,80,0.18); }
+    100% { box-shadow: 0 0 0 0 rgba(76,175,80,0); transform: scale(1); }
+}
+
+/* === Session warning overlay (1 min before forced break) === */
+.session-warn-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+.session-warn-card {
+    background: linear-gradient(135deg, rgba(33,150,243,0.95), rgba(156,39,176,0.95));
+    border: 4px solid rgba(255,255,255,0.4);
+    border-radius: 28px;
+    padding: 36px 48px;
+    text-align: center;
+    max-width: 520px;
+    box-shadow: 0 12px 50px rgba(0,0,0,0.5);
+}
+.session-warn-icon { font-size: 64px; margin-bottom: 10px; }
+.session-warn-text { font-family: 'Fredoka One', cursive; font-size: 30px; color: #FFD600; margin-bottom: 4px; }
+.session-warn-sub { color: #fff; font-size: 17px; opacity: 0.9; margin-bottom: 22px; }
+.session-warn-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.session-warn-keep { background: linear-gradient(135deg, #4CAF50, #2E7D32) !important; color: #fff; }
+.session-warn-break { background: rgba(255,255,255,0.18); color: #fff; }
+
+/* === Daily-return celebration === */
+.return-celebration-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease, fadeOut 0.4s ease 1.6s forwards;
+    pointer-events: none;
+}
+.return-celebration-card {
+    background: linear-gradient(135deg, rgba(255,152,0,0.95), rgba(226,54,54,0.95));
+    border: 4px solid rgba(255,255,255,0.4);
+    border-radius: 28px;
+    padding: 28px 48px;
+    text-align: center;
+    animation: returnCelePop 0.5s ease;
+}
+.return-celebration-icon { font-size: 56px; margin-bottom: 8px; }
+.return-celebration-text { font-family: 'Fredoka One', cursive; font-size: 30px; color: #FFD600; }
+.return-celebration-sub { color: #fff; font-size: 16px; margin-top: 4px; }
+@keyframes returnCelePop {
+    0% { transform: scale(0.7); opacity: 0; }
+    60% { transform: scale(1.08); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+@keyframes fadeOut { to { opacity: 0; } }

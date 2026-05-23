@@ -9,7 +9,11 @@ const Main = (() => {
     let sessionStartTime = null;
     let roundCorrect = 0;
     let roundTotal = 0;
-    const SESSION_MAX_MS = 12 * 60 * 1000;
+    let SESSION_MAX_MS = 12 * 60 * 1000;
+    let _sessionWarnTimer = null;
+    let _sessionWarnShown = false;
+    let _sessionExtendedOnce = false;
+    let _currentReplayText = '';
 
     const ACTIVITIES = [
         { id: 'color-catch', icon: '🎨', label: 'Color Catch', module: () => ColorCatch },
@@ -33,15 +37,48 @@ const Main = (() => {
         const splashChar = document.getElementById('splash-spidey');
         if (splashChar && Character._spideySVG) splashChar.innerHTML = Character._spideySVG;
 
-        document.addEventListener('click', () => Audio.unlock(), { once: true });
-        document.addEventListener('touchstart', () => Audio.unlock(), { once: true });
+        document.addEventListener('click', () => { Audio.unlock(); if (typeof Encouragement !== 'undefined') Encouragement.unlock(); }, { once: true });
+        document.addEventListener('touchstart', () => { Audio.unlock(); if (typeof Encouragement !== 'undefined') Encouragement.unlock(); }, { once: true });
 
         _bindButtons();
+        _checkDailyReturn();
         _showSplash();
 
         if (typeof OTBEcosystem !== 'undefined') {
             OTBEcosystem.checkDailyStreak();
         }
+    }
+
+    function _checkDailyReturn() {
+        try {
+            const data = Progress.data;
+            if (!data || !data.lastPlayDate) return;
+            const today = new Date();
+            const yesterday = new Date();
+            yesterday.setDate(today.getDate() - 1);
+            const yStr = yesterday.toISOString().slice(0, 10);
+            const todayStr = today.toISOString().slice(0, 10);
+            if (data.lastPlayDate === yStr && data.lastPlayDate !== todayStr) {
+                _showReturnCelebration();
+            }
+        } catch (e) { /* ignore */ }
+    }
+
+    function _showReturnCelebration() {
+        const overlay = document.createElement('div');
+        overlay.className = 'return-celebration-overlay';
+        overlay.innerHTML = `
+            <div class="return-celebration-card">
+                <div class="return-celebration-icon">🔥</div>
+                <div class="return-celebration-text">Welcome back!</div>
+                <div class="return-celebration-sub">You're keeping your streak alive!</div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        setTimeout(() => {
+            try { Voice.speak("Welcome back! You're keeping your streak alive!"); } catch (e) {}
+        }, 200);
+        setTimeout(() => { try { overlay.remove(); } catch (e) {} }, 2000);
     }
 
     function _showSplash() {
@@ -181,7 +218,12 @@ const Main = (() => {
         currentActivity = act;
         paused = false;
         document.getElementById('activity-pause-overlay').classList.remove('active');
-        sessionStartTime = sessionStartTime || Date.now();
+        if (!sessionStartTime) {
+            sessionStartTime = Date.now();
+            _sessionWarnShown = false;
+            _sessionExtendedOnce = false;
+        }
+        _scheduleSessionWarning();
         roundCorrect = 0;
         roundTotal = 0;
 
@@ -354,17 +396,111 @@ const Main = (() => {
 
         document.getElementById('session-end-btn').addEventListener('click', () => {
             sessionStartTime = null;
+            if (_sessionWarnTimer) { clearTimeout(_sessionWarnTimer); _sessionWarnTimer = null; }
+            _sessionWarnShown = false;
+            _sessionExtendedOnce = false;
+            SESSION_MAX_MS = 12 * 60 * 1000; // reset
             Audio.playTap();
             _showScreen('home');
         });
     }
 
     function _stopActivity() {
+        try { if (typeof HintCascade !== 'undefined') HintCascade.stop(); } catch (e) {}
         if (currentActivity) {
             const mod = currentActivity.module();
             if (mod.stop) mod.stop();
             currentActivity = null;
         }
+    }
+
+    function _scheduleSessionWarning() {
+        if (_sessionWarnTimer) { clearTimeout(_sessionWarnTimer); _sessionWarnTimer = null; }
+        if (_sessionWarnShown || !sessionStartTime) return;
+        const elapsed = Date.now() - sessionStartTime;
+        const remainingToWarn = (SESSION_MAX_MS - 60000) - elapsed;
+        if (remainingToWarn <= 0) return; // already past warn window
+        _sessionWarnTimer = setTimeout(_showSessionWarning, remainingToWarn);
+    }
+
+    function _showSessionWarning() {
+        if (_sessionWarnShown) return;
+        _sessionWarnShown = true;
+        const overlay = document.createElement('div');
+        overlay.className = 'session-warn-overlay';
+        overlay.innerHTML = `
+            <div class="session-warn-card">
+                <div class="session-warn-icon">⏰</div>
+                <div class="session-warn-text">Almost time for a break!</div>
+                <div class="session-warn-sub">One minute left.</div>
+                <div class="session-warn-btns">
+                    <button class="big-btn btn-play session-warn-keep" id="session-warn-keep">▶ Keep playing!</button>
+                    <button class="big-btn session-warn-break" id="session-warn-break">🛋 Take a break</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        try { Voice.speak('Almost time for a break! Do you want to keep playing or take a break?'); } catch (e) {}
+
+        const keepBtn = overlay.querySelector('#session-warn-keep');
+        const breakBtn = overlay.querySelector('#session-warn-break');
+        if (keepBtn) keepBtn.addEventListener('click', () => {
+            try { Audio.playTap(); } catch (e) {}
+            if (!_sessionExtendedOnce) {
+                _sessionExtendedOnce = true;
+                SESSION_MAX_MS += 5 * 60 * 1000;
+                _sessionWarnShown = false; // allow one more warning at the new boundary
+                _scheduleSessionWarning();
+            }
+            overlay.remove();
+        });
+        if (breakBtn) breakBtn.addEventListener('click', () => {
+            try { Audio.playTap(); } catch (e) {}
+            overlay.remove();
+            // Force session end on next activity complete by leaving sessionStartTime,
+            // and immediately ending: stop activity, show session end.
+            try { if (typeof HintCascade !== 'undefined') HintCascade.stop(); } catch (e) {}
+            _stopActivity();
+            _showSessionEnd();
+        });
+    }
+
+    // Voice replay helper — activities call this when rendering a prompt.
+    // Stashes the current narration so the on-screen replay button can re-speak it.
+    function setPromptForReplay(text) {
+        _currentReplayText = text || '';
+    }
+    function replayPrompt() {
+        if (_currentReplayText) {
+            try { Voice.speak(_currentReplayText); } catch (e) {}
+        }
+    }
+    /**
+     * attachVoiceReplay(container, text)
+     *   Adds a big "Hear again" button to the .activity-prompt block of
+     *   `container`, registers the text for replay, and wires the click.
+     *   Safe to call repeatedly when rebuilding HTML — it removes any prior
+     *   replay button first.
+     */
+    function attachVoiceReplay(container, text) {
+        if (!container) return;
+        setPromptForReplay(text);
+        const prompt = container.querySelector('.activity-prompt');
+        if (!prompt) return;
+        // Remove existing replay button if present
+        const existing = prompt.querySelector('.voice-replay-btn');
+        if (existing) existing.remove();
+        const btn = document.createElement('button');
+        btn.className = 'voice-replay-btn';
+        btn.setAttribute('aria-label', 'Hear again');
+        btn.textContent = '🔊 Hear again';
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            try { Audio.playTap(); } catch (_) {}
+            replayPrompt();
+            try { if (typeof HintCascade !== 'undefined') HintCascade.tap(); } catch (_) {}
+        });
+        prompt.appendChild(btn);
     }
 
     function _pauseActivity() {
@@ -439,7 +575,7 @@ const Main = (() => {
         });
     }
 
-    return { init, showStickerEarned };
+    return { init, showStickerEarned, setPromptForReplay, replayPrompt, attachVoiceReplay };
 })();
 
 document.addEventListener('DOMContentLoaded', Main.init);

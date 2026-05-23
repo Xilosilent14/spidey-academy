@@ -1,4 +1,4 @@
-const CACHE_NAME = 'spidey-academy-v21';
+const CACHE_NAME = 'spidey-academy-v22';
 
 const ASSETS = [
     '/', '/index.html', '/offline.html',
@@ -7,6 +7,7 @@ const ASSETS = [
     '/js/voice.js', '/js/audio.js', '/js/progress.js',
     '/js/celebration.js', '/js/character.js',
     '/js/backgrounds.js', '/js/badges.js',
+    '/js/encouragement.js', '/js/hint-cascade.js',
     '/js/sticker-book.js', '/js/main.js',
     '/js/activities/color-catch.js', '/js/activities/shape-builder.js',
     '/js/activities/number-bugs.js', '/js/activities/letter-web.js',

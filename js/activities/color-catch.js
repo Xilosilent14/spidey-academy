@@ -143,7 +143,17 @@ const ColorCatch = (() => {
         bugs.sort(() => Math.random() - 0.5);
         _render();
         _startMovement();
-        setTimeout(() => Voice.speak(`Can you catch the ${targetColor.name} bugs?`), 300);
+        const catchPrompt = `Can you catch the ${targetColor.name} bugs?`;
+        Main.attachVoiceReplay(container, catchPrompt);
+        HintCascade.start({
+            getCorrectEl: () => {
+                // Find first uncaught matching bug element
+                const first = bugs.find(b => !b.caught && b.color.name === targetColor.name);
+                return first ? container.querySelector(`[data-bug-id="${first.id}"]`) : null;
+            },
+            prompt: catchPrompt
+        });
+        setTimeout(() => Voice.speak(catchPrompt), 300);
     }
 
     // ---------- K: Color Mixing ----------
@@ -186,14 +196,24 @@ const ColorCatch = (() => {
         `;
         container.querySelectorAll('.color-choice-btn').forEach(btn =>
             btn.addEventListener('click', () => _onMixChoice(btn)));
-        setTimeout(() => Voice.speak(`What color do ${mix.from[0]} and ${mix.from[1]} make?`), 400);
+        const mixPrompt = `What color do ${mix.from[0]} and ${mix.from[1]} make?`;
+        Main.attachVoiceReplay(container, mixPrompt);
+        HintCascade.start({
+            getCorrectEl: () => container.querySelector(`[data-color="${mixAnswer.mix}"]`),
+            prompt: mixPrompt
+        });
+        setTimeout(() => Voice.speak(mixPrompt), 400);
     }
 
     function _onMixChoice(btn) {
         if (!roundActive) return;
+        HintCascade.tap();
         const chosen = btn.dataset.color;
         roundTotal++;
         if (chosen === mixAnswer.mix) {
+            Encouragement.chime();
+            Encouragement.pulseCorrect(btn);
+            HintCascade.stop();
             roundCorrect++;
             Audio.playCorrect();
             Progress.recordAnswer('color-catch', true);
@@ -207,10 +227,10 @@ const ColorCatch = (() => {
             setTimeout(() => _nextGradeRound(), 2000);
         } else {
             Audio.playWrong();
+            Encouragement.speakWrong();
             Progress.recordAnswer('color-catch', false);
             Character.encourage();
             btn.classList.add('choice-wrong');
-            Voice.speak(`Not quite. ${mixAnswer.from[0]} and ${mixAnswer.from[1]} make ${mixAnswer.mix}!`);
             const correctBtn = container.querySelector(`[data-color="${mixAnswer.mix}"]`);
             if (correctBtn) correctBtn.classList.add('choice-hint');
             setTimeout(() => {
@@ -253,14 +273,24 @@ const ColorCatch = (() => {
         `;
         container.querySelectorAll('.shade-choice-btn').forEach(btn =>
             btn.addEventListener('click', () => _onShadeChoice(btn)));
-        setTimeout(() => Voice.speak(`Can you find ${target.name}?`), 400);
+        const shadePrompt = `Can you find ${target.name}?`;
+        Main.attachVoiceReplay(container, shadePrompt);
+        HintCascade.start({
+            getCorrectEl: () => container.querySelector(`[data-shade="${target.name}"]`),
+            prompt: shadePrompt
+        });
+        setTimeout(() => Voice.speak(shadePrompt), 400);
     }
 
     function _onShadeChoice(btn) {
         if (!roundActive) return;
+        HintCascade.tap();
         const chosen = btn.dataset.shade;
         roundTotal++;
         if (chosen === targetColor.name) {
+            Encouragement.chime();
+            Encouragement.pulseCorrect(btn);
+            HintCascade.stop();
             roundCorrect++;
             Audio.playCorrect();
             Progress.recordAnswer('color-catch', true);
@@ -274,10 +304,10 @@ const ColorCatch = (() => {
             setTimeout(() => _nextGradeRound(), 1500);
         } else {
             Audio.playWrong();
+            Encouragement.speakWrong();
             Progress.recordAnswer('color-catch', false);
             Character.encourage();
             btn.classList.add('choice-wrong');
-            Voice.speak(`That's ${chosen}. Look for ${targetColor.name}!`);
             const correctBtn = container.querySelector(`[data-shade="${targetColor.name}"]`);
             if (correctBtn) correctBtn.classList.add('choice-hint');
             setTimeout(() => {
@@ -317,14 +347,24 @@ const ColorCatch = (() => {
         `;
         container.querySelectorAll('.warmcool-btn').forEach(btn =>
             btn.addEventListener('click', () => _onWarmCoolChoice(btn)));
-        setTimeout(() => Voice.speak(`Is ${pick.name} a warm color or a cool color?`), 400);
+        const wcPrompt = `Is ${pick.name} a warm color or a cool color?`;
+        Main.attachVoiceReplay(container, wcPrompt);
+        HintCascade.start({
+            getCorrectEl: () => container.querySelector(`[data-answer="${mixAnswer}"]`),
+            prompt: wcPrompt
+        });
+        setTimeout(() => Voice.speak(wcPrompt), 400);
     }
 
     function _onWarmCoolChoice(btn) {
         if (!roundActive) return;
+        HintCascade.tap();
         const chosen = btn.dataset.answer;
         roundTotal++;
         if (chosen === mixAnswer) {
+            Encouragement.chime();
+            Encouragement.pulseCorrect(btn);
+            HintCascade.stop();
             roundCorrect++;
             Audio.playCorrect();
             Progress.recordAnswer('color-catch', true);
@@ -338,10 +378,10 @@ const ColorCatch = (() => {
             setTimeout(() => _nextGradeRound(), 1500);
         } else {
             Audio.playWrong();
+            Encouragement.speakWrong();
             Progress.recordAnswer('color-catch', false);
             Character.encourage();
             btn.classList.add('choice-wrong');
-            Voice.speak(`${targetColor.name} is actually a ${mixAnswer} color!`);
             const correctBtn = container.querySelector(`[data-answer="${mixAnswer}"]`);
             if (correctBtn) correctBtn.classList.add('choice-hint');
             setTimeout(() => {
@@ -387,14 +427,24 @@ const ColorCatch = (() => {
         `;
         container.querySelectorAll('.color-choice-btn').forEach(btn =>
             btn.addEventListener('click', () => _onComplementaryChoice(btn)));
-        setTimeout(() => Voice.speak(`What is the opposite of ${shown.name} on the color wheel?`), 400);
+        const compPrompt = `What is the opposite of ${shown.name} on the color wheel?`;
+        Main.attachVoiceReplay(container, compPrompt);
+        HintCascade.start({
+            getCorrectEl: () => container.querySelector(`[data-color="${mixAnswer.name}"]`),
+            prompt: compPrompt
+        });
+        setTimeout(() => Voice.speak(compPrompt), 400);
     }
 
     function _onComplementaryChoice(btn) {
         if (!roundActive) return;
+        HintCascade.tap();
         const chosen = btn.dataset.color;
         roundTotal++;
         if (chosen === mixAnswer.name) {
+            Encouragement.chime();
+            Encouragement.pulseCorrect(btn);
+            HintCascade.stop();
             roundCorrect++;
             Audio.playCorrect();
             Progress.recordAnswer('color-catch', true);
@@ -408,10 +458,10 @@ const ColorCatch = (() => {
             setTimeout(() => _nextGradeRound(), 2000);
         } else {
             Audio.playWrong();
+            Encouragement.speakWrong();
             Progress.recordAnswer('color-catch', false);
             Character.encourage();
             btn.classList.add('choice-wrong');
-            Voice.speak(`The opposite of ${targetColor.name} is ${mixAnswer.name}!`);
             const correctBtn = container.querySelector(`[data-color="${mixAnswer.name}"]`);
             if (correctBtn) correctBtn.classList.add('choice-hint');
             setTimeout(() => {
@@ -478,11 +528,14 @@ const ColorCatch = (() => {
 
     function _onBugTap(e, el) {
         if (!roundActive) return;
+        HintCascade.tap();
         const bugId = parseInt(el.dataset.bugId);
         const bug = bugs.find(b => b.id === bugId);
         if (!bug || bug.caught) return;
 
         if (bug.color.name === targetColor.name) {
+            Encouragement.chime();
+            Encouragement.pulseCorrect(el);
             bug.caught = true;
             caught++;
             roundCorrect++;
@@ -501,6 +554,7 @@ const ColorCatch = (() => {
 
             if (caught >= needed) {
                 currentRoundNum++;
+                HintCascade.stop();
                 if (moveInterval) clearInterval(moveInterval);
                 Audio.playCelebration();
                 Character.celebrate();
@@ -515,11 +569,11 @@ const ColorCatch = (() => {
         } else {
             roundTotal++;
             Audio.playWrong();
+            Encouragement.speakWrong();
             Progress.recordAnswer('color-catch', false);
             Character.encourage();
             el.classList.add('bug-shake');
             setTimeout(() => el.classList.remove('bug-shake'), 500);
-            Voice.speak(`That's ${bug.color.name}. Try the ${targetColor.name} one!`);
         }
     }
 
@@ -580,6 +634,7 @@ const ColorCatch = (() => {
         roundActive = false;
         if (moveInterval) clearInterval(moveInterval);
         bugs = [];
+        try { HintCascade.stop(); } catch (e) {}
     }
 
     return { start, stop };
