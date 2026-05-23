@@ -59,6 +59,7 @@ const Main = (() => {
             const yStr = yesterday.toISOString().slice(0, 10);
             const todayStr = today.toISOString().slice(0, 10);
             if (data.lastPlayDate === yStr && data.lastPlayDate !== todayStr) {
+                try { if (typeof Analytics !== 'undefined') Analytics.event('streak_day', { day: Progress.getStreak() }); } catch (_) {}
                 _showReturnCelebration();
             }
         } catch (e) { /* ignore */ }
@@ -118,6 +119,7 @@ const Main = (() => {
             screen.classList.add('active');
             currentScreen = screenId;
         }
+        try { if (typeof Analytics !== 'undefined') Analytics.event('screen_view', { screen: screenId }); } catch (_) {}
 
         if (screenId === 'home') _updateHome();
         else if (screenId === 'stickers') {
@@ -126,6 +128,17 @@ const Main = (() => {
             if (totalEl) totalEl.textContent = `${StickerBook.getTotalEarned()} / ${StickerBook.getTotalAvailable()}`;
         }
         else if (screenId === 'activities') _renderActivities();
+        else if (screenId === 'title') {
+            // Refresh streak chip + add idle-bob to the play button
+            try {
+                if (typeof StreakUI !== 'undefined') {
+                    const titleContent = document.querySelector('#screen-title .title-content');
+                    StreakUI.render(titleContent);
+                }
+                const playBtn = document.getElementById('btn-title-play');
+                if (playBtn) playBtn.classList.add('idle-bob');
+            } catch (_) {}
+        }
     }
 
     function _updateHome() {
@@ -228,6 +241,7 @@ const Main = (() => {
         roundTotal = 0;
 
         Audio.playWhoosh();
+        try { if (typeof Analytics !== 'undefined') Analytics.event('activity_start', { activity: activityId, grade: Progress.getGradeLevel() }); } catch (_) {}
         Backgrounds.setActivity(activityId);
         _showScreen('activity');
 
@@ -266,7 +280,24 @@ const Main = (() => {
         // Record with star rating
         if (currentActivity) {
             Progress.recordActivityPlayed(currentActivity.id, roundCorrect, roundTotal);
+            try {
+                if (typeof Analytics !== 'undefined') {
+                    Analytics.event('activity_complete', {
+                        activity: currentActivity.id,
+                        correct: roundCorrect,
+                        total: roundTotal,
+                        acc: roundTotal > 0 ? Math.round((roundCorrect / roundTotal) * 100) / 100 : 0
+                    });
+                }
+            } catch (_) {}
         }
+
+        // Variable-reward mystery egg: roll once per session after activity completes.
+        try {
+            if (typeof MysteryEgg !== 'undefined') {
+                setTimeout(() => MysteryEgg.maybeOffer(roundCorrect), 800);
+            }
+        } catch (_) {}
 
         // Ecosystem integration: XP, coins, and answer tracking
         if (typeof OTBEcosystem !== 'undefined') {
@@ -360,6 +391,7 @@ const Main = (() => {
     }
 
     function _showStickerEarned(sticker) {
+        try { if (typeof Analytics !== 'undefined') Analytics.event('sticker_earned', { id: sticker && sticker.id }); } catch (_) {}
         Audio.playSticker();
         const overlay = document.createElement('div');
         overlay.className = 'sticker-earned-overlay';
@@ -581,14 +613,7 @@ const Main = (() => {
 document.addEventListener('DOMContentLoaded', Main.init);
 
 
-// Global error handler - catch runtime errors gracefully
-window.onerror = function(msg, source, line, col, error) {
-    console.error("Runtime error:", msg, "at", source, line + ":" + col);
-    return false;
-};
-window.addEventListener("unhandledrejection", function(event) {
-    console.error("Unhandled promise rejection:", event.reason);
-});
+// Global error handling lives in js/error-boundary.js (structured [bbg.err] logs).
 
 // ===========================================================
 // PWA: Service Worker + Install Prompt
